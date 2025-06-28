@@ -1,4 +1,4 @@
 ccxt
 pandas
-ta
 requests
+git+https://github.com/bukosabino/ta.git
