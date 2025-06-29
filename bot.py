@@ -1,4 +1,3 @@
-# bot.py
 import os
 import time
 import threading
@@ -9,7 +8,7 @@ from ta.volume import MFIIndicator
 import requests
 from flask import Flask
 
-# Setup Flask apenas para o Render aceitar
+# Setup Flask para Render aceitar
 app = Flask(__name__)
 
 @app.route('/')
@@ -21,7 +20,9 @@ TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 INTERVAL = int(os.getenv('INTERVAL', '900'))  # 15 minutos
 
-exchange = ccxt.binance()
+# Inicializa exchange KuCoin
+exchange = ccxt.kucoin()
+
 timeframes = ['15m', '1h']
 limit = 100
 
@@ -45,7 +46,7 @@ def analisar():
                 mfi = MFIIndicator(df['high'], df['low'], df['close'], df['volume'], window=14).money_flow_index().iloc[-1]
 
                 avg_volume = df['volume'].mean()
-                if avg_volume < 10000:  # filtra moedas com pouco volume
+                if avg_volume < 10000:  # filtra moedas com pouco volume para evitar scams/mortas
                     continue
 
                 if rsi >= 80 and mfi >= 90:
@@ -63,10 +64,9 @@ def run_bot():
         analisar()
         time.sleep(INTERVAL)
 
-# Inicia o bot em thread separada
+# Inicia o bot numa thread separada
 threading.Thread(target=run_bot).start()
 
-# Rodar servidor Flask
+# Roda o servidor Flask
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
-
