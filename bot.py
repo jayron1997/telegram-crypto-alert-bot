@@ -11,11 +11,8 @@ TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 INTERVAL = int(os.getenv('INTERVAL', '900'))  # Intervalo em segundos (900 = 15 min)
 
-# Conectar na Bybit via CCXT (spot)
-exchange = ccxt.bybit({
-    'options': {'defaultType': 'spot'},
-    # 'enableRateLimit': True  # pode ativar se quiser
-})
+# Conectar na KuCoin via CCXT
+exchange = ccxt.kucoin()
 
 # Timeframes para análise
 timeframes = ['15m', '1h']
@@ -33,12 +30,12 @@ def send_telegram(msg: str):
 
 # Função para enviar mensagem inicial ao iniciar o bot
 def start_message():
-    send_telegram("🤖 Bot iniciado e rodando! Monitorando criptomoedas USDT na Bybit.")
+    send_telegram("🤖 Bot iniciado e rodando! Monitorando criptomoedas USDT na KuCoin.")
 
 # Função que faz a análise técnica e envia alertas
 def analisar():
-    # Pega todos os símbolos ativos que terminam com USDT (Bybit usa símbolo tipo 'BTCUSDT')
-    symbols = [s['symbol'] for s in exchange.fetch_markets() if s['active'] and s['symbol'].endswith('USDT')]
+    # Pega todos os símbolos ativos que terminam com /USDT
+    symbols = [s['symbol'] for s in exchange.fetch_markets() if s['active'] and s['symbol'].endswith('/USDT')]
 
     for tf in timeframes:
         for symbol in symbols:
@@ -66,4 +63,3 @@ if __name__ == '__main__':
         print("Analisando mercado...")
         analisar()
         time.sleep(INTERVAL)
-
